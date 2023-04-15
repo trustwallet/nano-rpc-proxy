@@ -1,5 +1,8 @@
 {
   "node_url":               "http://[::1]:7076",
+  "node_headers":           {
+    "Content-Type": "application/json"
+  },
   "node_ws_url":            "ws://127.0.0.1:7078",
   "http_port":              9950,
   "https_port":             9951,

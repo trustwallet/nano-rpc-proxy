@@ -33,6 +33,8 @@ export interface DdosProtection {
 export default interface ProxySettings {
     // nano node RPC url (default for beta network is 'http://[::1]:55000')
     node_url: string;
+    // nano node RPC headers
+    node_headers?: Record<string, string> | undefined;
     // node websocket server (only used if activated with use_websocket)
     node_ws_url: string;
     // port to listen on for http (enabled default with use_http)
@@ -119,6 +121,12 @@ function logObjectEntries(logger: (...data: any[]) => void, title: string, objec
 export function proxyLogSettings(logger: (...data: any[]) => void, settings: ProxySettings) {
     logger("PROXY SETTINGS:\n-----------")
     logger("Node url: " + settings.node_url)
+    if (settings.node_headers) {
+        logger("Node headers:") 
+        for (const header in settings.node_headers) {
+            logger("\t" + header + ": " + settings.node_headers[header]);
+        }
+    }
     logger("Websocket url: " + settings.node_ws_url)
     logger("Http port: " + String(settings.http_port))
     logger("Https port: " + String(settings.https_port))
@@ -183,6 +191,7 @@ export function proxyLogSettings(logger: (...data: any[]) => void, settings: Pro
 export function readProxySettings(settingsPath: string): ProxySettings {
     const defaultSettings: ProxySettings = {
         node_url: "http://[::1]:7076",
+        node_headers: undefined,
         node_ws_url: "ws://127.0.0.1:7078",
         http_port: 9950,
         https_port: 9951,

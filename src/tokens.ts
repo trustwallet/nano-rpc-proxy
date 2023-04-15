@@ -26,10 +26,11 @@ const sleep = (milliseconds: number) => {
 }
 
 let node_url = "" // will be set by main script
+let node_headers: Record<string, string> | undefined
 
 // Functions to be required from another file
 // Generates and provides a payment address while checking for receivable tx and collect them
-export async function requestTokenPayment(token_amount: number, token_key: string, order_db: OrderDB, url: string): Promise<TokenRPCError | TokenInfo> {
+export async function requestTokenPayment(token_amount: number, token_key: string, order_db: OrderDB, url: string, headers: Record<string, string> | undefined): Promise<TokenRPCError | TokenInfo> {
   // Block request if amount is not within interval
   if (token_amount < settings.min_token_amount) {
     return {error: "Token amount must be larger than " + settings.min_token_amount}
@@ -39,6 +40,7 @@ export async function requestTokenPayment(token_amount: number, token_key: strin
   }
 
   node_url = url
+  node_headers = headers
   let priv_key = ""
   let address = ""
   let nano_amount = token_amount*settings.token_price // the Nano to be received
@@ -145,8 +147,9 @@ export async function checkTokenPrice(): Promise<TokenPriceResponse> {
   return {token_price: settings.token_price}
 }
 
-export async function repairOrder(address: string, order_db: OrderDB, url: string): Promise<void> {
+export async function repairOrder(address: string, order_db: OrderDB, url: string, headers: Record<string, string> | undefined): Promise<void> {
   node_url = url
+  node_headers = headers
   checkReceivable(address, order_db, false)
 }
 
@@ -503,7 +506,7 @@ async function processSend(order_db: OrderDB, privKey: string, previous: string 
       // publish block for each iteration
       let jsonBlock = {action: "process",  json_block: "true",  subtype:"send", block: block.block}
       try {
-        let data: ProcessResponse = await Tools.postData(jsonBlock, node_url, API_TIMEOUT)
+        let data: ProcessResponse = await Tools.postData(jsonBlock, node_url, node_headers, API_TIMEOUT)
         if (data.hash) {
           logThis("Funds transferred at block: " + data.hash + " to " + settings.payment_receive_account, log_levels.info)
           // update the db with latest hash to be used if processing receivable for the same account

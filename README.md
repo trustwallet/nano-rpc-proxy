@@ -266,6 +266,7 @@ If you used docker compose to build from local source (nanorpcproxy:latest) you 
 The proxy server is configured via the **settings.json** file found in the server folder
 
 * **node_url:** Nano node RPC url (default for main network is 'http://[::1]:7076' and for beta network 'http://[::1]:55000') [url]
+* **node_headers:** Nano node RPC headers, ( default `{ "Content-Type": "application/json" }`). Can be used to set remote node credentials via headers [dict]
 * **node_ws_url:** Nano node websocket url (default for main network is 'http://[::1]:7078' and for beta network 'http://[::1]:57000') [url]
 * **http_port:** Port to listen on for http (requires <use_http>) [number]
 * **https_port:** Port to listen on for https (requires <use_https>) [number]

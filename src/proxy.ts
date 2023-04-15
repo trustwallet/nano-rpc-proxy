@@ -830,7 +830,7 @@ async function processRequest(query: ProxyRPCRequest, req: Request, res: Respons
   // Send the request to the Nano node and return the response
   let endNodeTimer: MaybeTimedCall = promClient?.timeNodeRpc(query.action)
   try {
-    let data: ProcessDataResponse = await Tools.postData(query, settings.node_url, API_TIMEOUT)
+    let data: ProcessDataResponse = await Tools.postData(query, settings.node_url, settings.node_headers, API_TIMEOUT)
     // Save cache if applicable
     if (settings.use_cache) {
       const value: number | undefined = userSettings.cached_commands[query.action]

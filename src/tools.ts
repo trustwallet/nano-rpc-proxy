@@ -41,11 +41,14 @@ export async function getData<data>(server: string, timeout: number): Promise<da
 }
 
 // Post data, for example to RPC node. let data = await postData({"action":"block_count"}, "url", TIMEOUT)
-export  async function postData<ResponseData>(data: any, server: string, timeout: number): Promise<ResponseData> {
+export  async function postData<ResponseData>(data: any, server: string, headers: Record<string, string> | undefined, timeout: number): Promise<ResponseData> {
+  if (!headers) {
+    headers = { 'Content-Type': 'application/json' }
+  }
   let options: any = {
     method: 'post',
     body:    JSON.stringify(data),
-    headers: { 'Content-Type': 'application/json' },
+    headers: headers,
     timeout: timeout,
   }
 
