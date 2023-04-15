@@ -157,7 +157,7 @@ async function checkOldOrders() {
   // Process all old orders
   //logThis("Checking old orders", log_levels.info)
   orders.forEach(async function(order) {
-    // Reset status in case the order was interrupted and set a small nano_amount to allow small pending to create tokens
+    // Reset status in case the order was interrupted and set a small nano_amount to allow small receivable to create tokens
     order_db.get('orders').find({priv_key: order.priv_key}).assign({order_waiting: false, processing: false, nano_amount: 0.000000001}).write()
     await Tokens.repairOrder(order.address, order_db, settings.node_url)
 
@@ -579,8 +579,8 @@ async function processRequest(query: ProxyRPCRequest, req: Request, res: Respons
     return res.status(500).json({ error: `Action ${query.action} not allowed`})
   }
   
-  // Block pending on specific account
-  if (query.action === 'pending' && query.account?.toLowerCase().replace('xrb_','nano_') === 'nano_1111111111111111111111111111111111111111111111111111hifc8npp') {
+  // Block receivable on specific account
+  if (query.action === 'receivable' && query.account?.toLowerCase().replace('xrb_','nano_') === 'nano_1111111111111111111111111111111111111111111111111111hifc8npp') {
     return res.status(403).json({error: 'Account not allowed'})
   }
 
@@ -811,13 +811,13 @@ async function processRequest(query: ProxyRPCRequest, req: Request, res: Respons
     const value: number | undefined = userSettings.limited_commands[query.action]
     if (value !== undefined) {
       // Handle multi-account calls a bit different since it's an array of accounts
-      if (query.action === 'accounts_frontiers' || query.action === 'accounts_balances' || query.action === 'accounts_pending') {
+      if (query.action === 'accounts_frontiers' || query.action === 'accounts_balances' || query.action === 'accounts_receivable') {
         if (query.accounts?.length > value) {
           query.accounts = query.accounts.slice(0, value)
           logThis("Query accounts was limited to " + value.toString(), log_levels.info)
         }
-        // also limit count for accounts_pending
-        if (query.action === 'accounts_pending') {
+        // also limit count for accounts_receivable
+        if (query.action === 'accounts_receivable') {
           if (query.count > value * 10 || !(query.count)) {
             query.count = value * 10
             logThis("Response count was limited to " + (value * 10).toString(), log_levels.info)

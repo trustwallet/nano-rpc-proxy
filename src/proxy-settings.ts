@@ -57,7 +57,7 @@ export default interface ProxySettings {
     use_http: boolean;
     // listen on https (inactive by default) (a valid cert and key file is needed via https_cert and https_key)
     use_https: boolean;
-    // if limiting number of response objects, like pending transactions, to a certain max amount set in limited_commands. Only supported for RPC actions that have a "count" key
+    // if limiting number of response objects, like receivable transactions, to a certain max amount set in limited_commands. Only supported for RPC actions that have a "count" key
     use_output_limiter: boolean;
     // if blocking access to IPs listed in ip_blacklist
     use_ip_blacklist: boolean;

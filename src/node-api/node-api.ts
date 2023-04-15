@@ -8,14 +8,14 @@ interface ProcessDataResponse {
     work: string | null
 }
 
-interface PendingBlock {
+interface ReceivableBlock {
     amount: string
     source: string
 }
 
-/** @see https://docs.nano.org/commands/rpc-protocol/#pending */
-interface PendingResponse {
-    blocks: Record<string, PendingBlock>
+/** @see https://docs.nano.org/commands/rpc-protocol/#receivable */
+interface ReceivableResponse {
+    blocks: Record<string, ReceivableBlock>
     error: string | null
 }
 
