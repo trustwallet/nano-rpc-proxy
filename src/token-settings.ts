@@ -14,7 +14,7 @@ export interface TokenSettings {
     // only allow receivable tx above this raw value
     receivable_threshold: string
     // max number of receivable to process per account for each order (normally only 1 should be needed)
-    receivableg_count: number
+    receivable_count: number
     // Multipliers used when using the node for PoW
     difficulty_multiplier: string
     // where to send the payment
