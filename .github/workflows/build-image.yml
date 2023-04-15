@@ -54,7 +54,7 @@ jobs:
       env:
         REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
         REGISTRY_ALIAS: ${{ vars.AWS_REGISTRY_ALIAS }}
-        REPOSITORY: ${{ github.repository }}
+        REPOSITORY: nano-rpc-proxy
       run: |
         echo "IMAGE_NAME=$REGISTRY/$REGISTRY_ALIAS/$REPOSITORY" >> $GITHUB_ENV
 
