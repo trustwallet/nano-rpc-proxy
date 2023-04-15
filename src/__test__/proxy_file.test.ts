@@ -97,7 +97,7 @@ test('log proxy settings with default config from file', () => {
     let settings: string[] = []
     const readSettings = readProxySettings(getTestPath(settingsFilePath))
     proxyLogSettings((setting: string) => settings.push(setting), readSettings)
-    expect(settings.length).toBe(30);
+    expect(settings.length).toBe(29);
     expect(settings).toStrictEqual(expectedSettingsWithFile)
 })
 

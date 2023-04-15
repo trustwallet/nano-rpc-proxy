@@ -31,6 +31,6 @@ test('log proxy settings with no config', () => {
     let settings: string[] = []
     const readSettings: ProxySettings = readProxySettings('path-does-not-exist')
     proxyLogSettings((setting: string) => settings.push(setting), readSettings)
-    expect(settings.length).toBe(25);
+    expect(settings.length).toBe(24);
     expect(settings).toStrictEqual(expectedDefaultSettings)
 });
