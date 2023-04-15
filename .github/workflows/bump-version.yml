@@ -33,7 +33,7 @@ jobs:
           git config --global user.name "GitHub Actions"
 
       - name: Bump npm version
-        run: npm version ${{ steps.tag-version.outputs.new_tag }}
+        run: npm version --commit-hooks false --git-tag-version false ${{ steps.tag-version.outputs.new_tag }}
 
       - name: Commit updated npm package.json
         uses: stefanzweifel/git-auto-commit-action@v4
@@ -47,5 +47,5 @@ jobs:
       - name: Bump version and push tag
         uses: mathieudutour/github-tag-action@v6.1
         with:
-          custom_tag: ${{ steps.tag-version.outputs.new_tag }}
+          custom_tag: ${{ steps.tag-version.outputs.new_version }}
           github_token: ${{ secrets.CI_GITHUB_TOKEN }}

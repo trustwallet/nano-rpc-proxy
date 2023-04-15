@@ -1,17 +1,17 @@
 {
-  "name": "NanoRPCProxy",
+  "name": "nano-rpc-proxy",
   "version": "0.0.1",
   "description": "Relay, firewall, rate limiter, ddos protection and cache system between a client and a Nano node RPC interface",
   "main": "src/proxy.js",
   "license": "GPL-3.0",
-  "repository": "https://github.com/Joohansson/NanoRPCProxy",
+  "repository": "https://github.com/trustwallet/nano-rpc-proxy",
   "scripts": {
     "test": "jest --runInBand",
     "start": "npm run-script build && node -r esm dist/proxy.js",
     "build": "npx tsc",
     "build:prod": "npx tsc --sourceMap false"
   },
-  "homepage": "https://github.com/joohansson/NanoRPCProxy",
+  "homepage": "https://trustwallet.com",
   "dependencies": {
     "big-integer": "^1.6.48",
     "bigdecimal": "^0.6.1",
