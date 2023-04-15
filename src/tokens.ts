@@ -427,7 +427,7 @@ async function processReceivable(order_db: OrderDB, blocks: any, keys: any, keyC
         previous = block.hash
 
         // publish block for each iteration
-        let jsonBlock = {action: "process",  json_block: "true",  subtype:subType,block: block.block}
+        let jsonBlock = {action: "process",  json_block: "true",  subtype:subType, block: block.block}
         subType = 'receive' // only the first block can be an open block, reset for next loop
 
         try {
