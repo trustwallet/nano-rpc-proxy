@@ -39,7 +39,6 @@ jobs:
           commit_user_email: "trust-ci@users.noreply.github.com"
 
       - name: Bump version and push tag
-        id: tag-version
         uses: mathieudutour/github-tag-action@v6.1
         with:
           custom_tag: ${{ steps.tag-version.outputs.new_version }}
