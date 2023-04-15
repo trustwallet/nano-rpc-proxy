@@ -667,13 +667,6 @@ async function processRequest(query: ProxyRPCRequest, req: Request, res: Respons
     }
   }
 
-  // Force no watch_work (don't want the node to perform pow). Deprecated in node v22 but keep this code for now.
-  if (settings.disable_watch_work) {
-    if (query.action === 'process') {
-      query.watch_work = 'false'
-    }
-  }
-
   // Handle work generate via dpow and/or bpow
   if (query.action === 'work_generate' && (settings.use_dpow || settings.use_bpow || settings.use_work_server || settings.use_work_peers)) {
     if (query.hash) {

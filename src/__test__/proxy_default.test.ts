@@ -19,7 +19,6 @@ const expectedDefaultSettings = [
     'Use bPoW: false',
     'Use work server: false',
     'Use work peers: false',
-    'Disabled watch_work for process: true',
     'Listen on http: true',
     'Listen on https: false',
     'Allowed commands:\n-----------\n\n',

@@ -7,7 +7,6 @@ export interface ProxyRPCRequest {
     token_amount: number
     token_key: string
     amount: string
-    watch_work: string
     difficulty: string | undefined
     use_peers: string | undefined
     user: string | undefined
