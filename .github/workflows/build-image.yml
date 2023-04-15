@@ -38,7 +38,7 @@ jobs:
       uses: aws-actions/configure-aws-credentials@v2
       with:
         role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
-        aws-region: ${{ env.AWS_REGION }}
+        aws-region: ${{ vars.AWS_REGION }}
 
     - name: Login to Amazon ECR Public
       # Run on tag push only.
@@ -53,7 +53,7 @@ jobs:
       if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/')
       env:
         REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
-        REGISTRY_ALIAS: ${{ env.AWS_REGISTRY_ALIAS }}
+        REGISTRY_ALIAS: ${{ vars.AWS_REGISTRY_ALIAS }}
         REPOSITORY: ${{ github.repository }}
       run: |
         echo "IMAGE_NAME=$REGISTRY/$REGISTRY_ALIAS/$REPOSITORY" >> $GITHUB_ENV
