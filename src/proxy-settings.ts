@@ -100,8 +100,6 @@ export default interface ProxySettings {
     cors_whitelist: any[];
     // the log level to use (startup info is always logged): none=zero active logging, warning=only errors/warnings, info=both errors/warnings and info
     log_level: LogLevel;
-    // forcefully set watch_work=false for process calls (to block node from doing rework)
-    disable_watch_work: boolean;
     // IP addresses to enable prometheus for. Typically '127.0.0.1', or '::ffff:127.0.0.1' for IPv6
     enable_prometheus_for_ips: string[];
 }
@@ -143,7 +141,6 @@ export function proxyLogSettings(logger: (...data: any[]) => void, settings: Pro
     logger("Use bPoW: " + settings.use_bpow)
     logger("Use work server: " + settings.use_work_server)
     logger("Use work peers: " + settings.use_work_peers)
-    logger("Disabled watch_work for process: " + settings.disable_watch_work)
     logger("Listen on http: " + settings.use_http)
     logger("Listen on https: " + settings.use_https)
 
@@ -221,7 +218,6 @@ export function readProxySettings(settingsPath: string): ProxySettings {
         websocket_max_accounts: 100,
         cors_whitelist: [],
         log_level: log_levels.none,
-        disable_watch_work: true,
         enable_prometheus_for_ips: [],
     }
     try {

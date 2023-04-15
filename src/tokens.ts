@@ -427,7 +427,7 @@ async function processReceivable(order_db: OrderDB, blocks: any, keys: any, keyC
         previous = block.hash
 
         // publish block for each iteration
-        let jsonBlock = {action: "process",  json_block: "true",  subtype:subType, watch_work:"false", block: block.block}
+        let jsonBlock = {action: "process",  json_block: "true",  subtype:subType, block: block.block}
         subType = 'receive' // only the first block can be an open block, reset for next loop
 
         try {
@@ -501,7 +501,7 @@ async function processSend(order_db: OrderDB, privKey: string, previous: string 
       block.block.link_as_account = block.block.link_as_account.replace('xrb', 'nano')
 
       // publish block for each iteration
-      let jsonBlock = {action: "process",  json_block: "true",  subtype:"send", watch_work:"false", block: block.block}
+      let jsonBlock = {action: "process",  json_block: "true",  subtype:"send", block: block.block}
       try {
         let data: ProcessResponse = await Tools.postData(jsonBlock, node_url, API_TIMEOUT)
         if (data.hash) {

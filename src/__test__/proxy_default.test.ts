@@ -19,7 +19,6 @@ const expectedDefaultSettings = [
     'Use bPoW: false',
     'Use work server: false',
     'Use work peers: false',
-    'Disabled watch_work for process: true',
     'Listen on http: true',
     'Listen on https: false',
     'Allowed commands:\n-----------\n\n',
@@ -32,6 +31,6 @@ test('log proxy settings with no config', () => {
     let settings: string[] = []
     const readSettings: ProxySettings = readProxySettings('path-does-not-exist')
     proxyLogSettings((setting: string) => settings.push(setting), readSettings)
-    expect(settings.length).toBe(25);
+    expect(settings.length).toBe(24);
     expect(settings).toStrictEqual(expectedDefaultSettings)
 });
