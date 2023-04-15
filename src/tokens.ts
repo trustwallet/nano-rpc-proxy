@@ -28,7 +28,7 @@ const sleep = (milliseconds: number) => {
 let node_url = "" // will be set by main script
 
 // Functions to be required from another file
-// Generates and provides a payment address while checking for pending tx and collect them
+// Generates and provides a payment address while checking for receivable tx and collect them
 export async function requestTokenPayment(token_amount: number, token_key: string, order_db: OrderDB, url: string): Promise<TokenRPCError | TokenInfo> {
   // Block request if amount is not within interval
   if (token_amount < settings.min_token_amount) {
@@ -68,9 +68,9 @@ export async function requestTokenPayment(token_amount: number, token_key: strin
     order_db.get("orders").push(order).write()
   }
 
-  // Start checking for pending and cancel order if taking too long
-  logThis("Start checking pending tx every " + settings.pending_interval + "sec for a total of " + nano_amount + " Nano...", log_levels.info)
-  checkPending(address, order_db)
+  // Start checking for receivable and cancel order if taking too long
+  logThis("Start checking receivable tx every " + settings.receivable_interval + "sec for a total of " + nano_amount + " Nano...", log_levels.info)
+  checkReceivable(address, order_db)
 
   // Return payment request
   return { address: address, token_key:token_key, payment_amount:nano_amount }
@@ -130,10 +130,10 @@ export async function checkTokens(token_key: string, order_db: OrderDB): Promise
       return {tokens_total:order.tokens, status:"OK"}
     }
     else if (order.order_time_left > 0){
-      return {tokens_total:order.tokens, status:'Something went wrong with the last order. You can try the buy command again with the same key to see if it register the pending or you can cancel it and claim private key with "action":"tokenorder_cancel"'}
+      return {tokens_total:order.tokens, status:'Something went wrong with the last order. You can try the buy command again with the same key to see if it register the receivable or you can cancel it and claim private key with "action":"tokenorder_cancel"'}
     }
     else {
-      return {tokens_total:order.tokens, status:'The last order timed out. If you sent Nano you can try the buy command again with the same key to see if it register the pending or you can cancel it and claim private key with "action":"tokenorder_cancel"'}
+      return {tokens_total:order.tokens, status:'The last order timed out. If you sent Nano you can try the buy command again with the same key to see if it register the receivable or you can cancel it and claim private key with "action":"tokenorder_cancel"'}
     }
   }
   else {
@@ -147,22 +147,22 @@ export async function checkTokenPrice(): Promise<TokenPriceResponse> {
 
 export async function repairOrder(address: string, order_db: OrderDB, url: string): Promise<void> {
   node_url = url
-  checkPending(address, order_db, false)
+  checkReceivable(address, order_db, false)
 }
 
-// Check if order payment has arrived as a pending block, continue check at intervals until time is up. If continue is set to false it will only check one time
-async function checkPending(address: string, order_db: OrderDB, moveOn: boolean = true, total_received = 0): Promise<void> {
-  // Check pending and claim
+// Check if order payment has arrived as a receivable block, continue check at intervals until time is up. If continue is set to false it will only check one time
+async function checkReceivable(address: string, order_db: OrderDB, moveOn: boolean = true, total_received = 0): Promise<void> {
+  // Check receivable and claim
   let priv_key = order_db.get('orders').find({address: address}).value().priv_key
   let nano_amount = order_db.get('orders').find({address: address}).value().nano_amount
-  order_db.get('orders').find({address: address}).assign({"processing":true}).write() // set processing status (to avoid stealing of the private key via orderCancel before pending has been retrieved)
+  order_db.get('orders').find({address: address}).assign({"processing":true}).write() // set processing status (to avoid stealing of the private key via orderCancel before receivable has been retrieved)
   try {
-    let pending_result: any = await processAccount(priv_key, order_db)
+    let receivable_result: any = await processAccount(priv_key, order_db)
     order_db.get('orders').find({address: address}).assign({"processing":false}).write() // reset processing status
 
-    // Payment is OK when combined pending is equal or larger than was ordered (to make sure spammed pending is not counted as an order)
-    if('amount' in pending_result && pending_result.amount > 0) {
-      total_received = total_received + pending_result.amount
+    // Payment is OK when combined receivable is equal or larger than was ordered (to make sure spammed receivable is not counted as an order)
+    if('amount' in receivable_result && receivable_result.amount > 0) {
+      total_received = total_received + receivable_result.amount
       // Get the right order based on address
       const order = order_db.get('orders').find({address: address}).value()
       if(total_received >= nano_amount-0.000001) { // add little margin here because of floating number precision deviation when adding many tx together
@@ -175,9 +175,9 @@ async function checkPending(address: string, order_db: OrderDB, moveOn: boolean 
             prev_hashes = order.hashes
           }
 
-          // Update the total tokens count, actual nano paid and pending hashes that was processed
-          logThis("Enough pending amount detected: Order successfully updated! Continuing processing pending internally", log_levels.info)
-          order_db.get('orders').find({address: address}).assign({tokens: order.tokens + tokens_purchased, nano_amount: total_received, token_amount:order.token_amount + tokens_purchased, order_waiting: false, hashes:prev_hashes.concat(pending_result.hashes)}).write()
+          // Update the total tokens count, actual nano paid and receivable hashes that was processed
+          logThis("Enough receivable amount detected: Order successfully updated! Continuing processing receivable internally", log_levels.info)
+          order_db.get('orders').find({address: address}).assign({tokens: order.tokens + tokens_purchased, nano_amount: total_received, token_amount:order.token_amount + tokens_purchased, order_waiting: false, hashes:prev_hashes.concat(receivable_result.hashes)}).write()
           return
         }
         logThis("Address paid was not found in the DB", log_levels.warning)
@@ -192,12 +192,12 @@ async function checkPending(address: string, order_db: OrderDB, moveOn: boolean 
             prev_hashes = order.hashes
           }
 
-          // Update the pending hashes
-          order_db.get('orders').find({address: address}).assign({hashes:prev_hashes.concat(pending_result.hashes)}).write()
+          // Update the receivable hashes
+          order_db.get('orders').find({address: address}).assign({hashes:prev_hashes.concat(receivable_result.hashes)}).write()
         }
       }
     }
-    else if (!pending_result?.amount) {
+    else if (!receivable_result?.amount) {
       logThis("Awaiting amount", log_levels.warning)
     }
   }
@@ -210,13 +210,13 @@ async function checkPending(address: string, order_db: OrderDB, moveOn: boolean 
     return
   }
   // pause x sec and check again
-  await sleep(settings.pending_interval * 1000)
+  await sleep(settings.receivable_interval * 1000)
 
   // Find the order and update the timeout key
   const order = order_db.get('orders').find({address: address}).value()
   if (order) {
     // Update the order time left
-    let new_time = order.order_time_left - settings.pending_interval
+    let new_time = order.order_time_left - settings.receivable_interval
     if (new_time < 0) {
       new_time = 0
     }
@@ -224,7 +224,7 @@ async function checkPending(address: string, order_db: OrderDB, moveOn: boolean 
 
     // continue checking as long as the db order has time left
     if (order.order_time_left > 0) {
-      checkPending(address, order_db, true, total_received) // check again
+      checkReceivable(address, order_db, true, total_received) // check again
     }
     else {
       order_db.get('orders').find({address: address}).assign({order_waiting: false}).write()
@@ -281,8 +281,8 @@ async function processAccount(privKey: string, order_db: OrderDB): Promise<Statu
         adjustedBalance = "0"
       }
       if (validResponse) {
-        // create and publish all pending
-        createPendingBlocks(order_db, privKey, address, balance, adjustedBalance, previous, subType, representative, pubKey, function(previous: string | null, newAdjustedBalance: string) {
+        // create and publish all receivable
+        createReceivableBlocks(order_db, privKey, address, balance, adjustedBalance, previous, subType, representative, pubKey, function(previous: string | null, newAdjustedBalance: string) {
           // the previous is the last received block and will be used to create the final send block
           if (parseInt(newAdjustedBalance) > 0) {
             processSend(order_db, privKey, previous, representative, () => {
@@ -310,32 +310,32 @@ async function processAccount(privKey: string, order_db: OrderDB): Promise<Statu
   return await promise
 }
 
-// Create pending blocks based on current balance and previous block (or start with an open block)
-async function createPendingBlocks(order_db: OrderDB, privKey: string, address: string, balance: string, adjustedBalance: string, previous: string | null, subType: string, representative: string, pubKey: string, callback: (previous: string | null, newAdjustedBalance: string) => any, accountCallback: (status: StatusCallback) => any): Promise<void> {
-  // check for pending first
-  // Solving this with websocket subscription instead of checking pending x times for each order would be nice but since we must check for previous pending that was done before the order initated, it makes it very complicated without rewriting the whole thing..
+// Create receivable blocks based on current balance and previous block (or start with an open block)
+async function createReceivableBlocks(order_db: OrderDB, privKey: string, address: string, balance: string, adjustedBalance: string, previous: string | null, subType: string, representative: string, pubKey: string, callback: (previous: string | null, newAdjustedBalance: string) => any, accountCallback: (status: StatusCallback) => any): Promise<void> {
+  // check for receivable first
+  // Solving this with websocket subscription instead of checking receivable x times for each order would be nice but since we must check for previous receivable that was done before the order initated, it makes it very complicated without rewriting the whole thing..
   let command: any = {}
-  command.action = 'pending'
+  command.action = 'receivable'
   command.account = address
   command.count = 10
   command.source = 'true'
   command.sorting = 'true' //largest amount first
   command.include_only_confirmed = 'true'
-  command.threshold = settings.pending_threshold
+  command.threshold = settings.receivable_threshold
 
   // retrive from RPC
   try {
-    let data: PendingResponse = await Tools.postData(command, node_url, API_TIMEOUT)
-    // if there are any pending, process them
+    let data: ReceivableResponse = await Tools.postData(command, node_url, API_TIMEOUT)
+    // if there are any receivable, process them
     if (data.blocks) {
-      // sum all raw amounts and create receive blocks for all pending
+      // sum all raw amounts and create receive blocks for all receivable
       let raw = '0'
       let keys: string[] = []
       let blocks: any = {}
       const order = order_db.get('orders').find({address: address}).value()
       Object.keys(data.blocks).forEach(function(key) {
         let found = false
-        // Check if the pending hashes have not already been processed
+        // Check if the receivable hashes have not already been processed
         if (order && 'hashes' in order) {
           order.hashes.forEach(function(hash) {
             if (key === hash) {
@@ -349,31 +349,31 @@ async function createPendingBlocks(order_db: OrderDB, privKey: string, address: 
           blocks[key] = data.blocks[key] // copy the original dictionary key and value to new dictionary
         }
       })
-      // if no new pending found, continue checking for pending
+      // if no new receivable found, continue checking for receivable
       if (keys.length == 0) {
         accountCallback({'amount':0})
       }
       else {
         let nanoAmount = Tools.rawToMnano(raw)
-        let row = "Found " + keys.length + " new pending containing total " + nanoAmount + " NANO"
+        let row = "Found " + keys.length + " new receivable containing total " + nanoAmount + " NANO"
         logThis(row,log_levels.info)
 
         accountCallback({amount:parseFloat(nanoAmount), hashes: keys})
 
-        // use previous from db instead for full compatability with multiple pendings
+        // use previous from db instead for full compatability with multiple receivables
         previous = order.previous
         // If there is a previous in db it means there already has been an open block thus next block must be a receive
         if (previous != null) {
           subType = 'receive'
         }
-        processPending(order_db, blocks, keys, 0, privKey, previous, subType, representative, pubKey, adjustedBalance, callback)
+        processReceivable(order_db, blocks, keys, 0, privKey, previous, subType, representative, pubKey, adjustedBalance, callback)
       }
     }
     else if (data.error) {
       logThis(data.error, log_levels.warning)
       accountCallback({ amount:0 })
     }
-    // no pending, create final block directly
+    // no receivable, create final block directly
     else {
       if (parseInt(adjustedBalance) > 0) {
         processSend(order_db, privKey, previous, representative, () => {
@@ -390,8 +390,8 @@ async function createPendingBlocks(order_db: OrderDB, privKey: string, address: 
   }
 }
 
-// For each pending block: Create block, generate work and process
-async function processPending(order_db: OrderDB, blocks: any, keys: any, keyCount: any, privKey: string, previous: string | null, subType: string, representative: string, pubKey: string, adjustedBalance: string, pendingCallback: (previous: string | null, newAdjustedBalance: string) => any): Promise<void> {
+// For each receivable block: Create block, generate work and process
+async function processReceivable(order_db: OrderDB, blocks: any, keys: any, keyCount: any, privKey: string, previous: string | null, subType: string, representative: string, pubKey: string, adjustedBalance: string, receivableCallback: (previous: string | null, newAdjustedBalance: string) => any): Promise<void> {
   let key = keys[keyCount]
 
   // generate local work
@@ -433,20 +433,20 @@ async function processPending(order_db: OrderDB, blocks: any, keys: any, keyCoun
         try {
           let data: ProcessResponse = await Tools.postData(jsonBlock, node_url, API_TIMEOUT)
           if (data.hash) {
-            logThis("Processed pending: " + data.hash, log_levels.info)
+            logThis("Processed receivable: " + data.hash, log_levels.info)
 
-            // update db with latest previous (must use this if final block was sent before the next pending could be processed in the same account, in the rare event of multiple pending)
+            // update db with latest previous (must use this if final block was sent before the next receivable could be processed in the same account, in the rare event of multiple receivable)
             order_db.get('orders').find({priv_key: privKey}).assign({previous: previous}).write()
 
-            // continue with the next pending
+            // continue with the next receivable
             keyCount += 1
             if (keyCount < keys.length) {
-              processPending(order_db, blocks, keys, keyCount, privKey, previous, subType, representative, pubKey, newAdjustedBalance, pendingCallback)
+              processReceivable(order_db, blocks, keys, keyCount, privKey, previous, subType, representative, pubKey, newAdjustedBalance, receivableCallback)
             }
-            // all pending done, now we process the final send block
+            // all receivable done, now we process the final send block
             else {
-              logThis("All pending processed!", log_levels.info)
-              pendingCallback(previous, newAdjustedBalance)
+              logThis("All receivable processed!", log_levels.info)
+              receivableCallback(previous, newAdjustedBalance)
             }
           }
           else {
@@ -506,7 +506,7 @@ async function processSend(order_db: OrderDB, privKey: string, previous: string 
         let data: ProcessResponse = await Tools.postData(jsonBlock, node_url, API_TIMEOUT)
         if (data.hash) {
           logThis("Funds transferred at block: " + data.hash + " to " + settings.payment_receive_account, log_levels.info)
-          // update the db with latest hash to be used if processing pending for the same account
+          // update the db with latest hash to be used if processing receivable for the same account
           order_db.get('orders').find({priv_key: privKey}).assign({previous: data.hash}).write()
         }
         else {

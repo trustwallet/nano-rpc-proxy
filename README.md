@@ -31,7 +31,7 @@ Apart from increased security, NanoRPCProxy solves the scalability issue where a
 * Supports any RPC command for any remote client; like wallets, exchanges, apps, games, bots or public API
 * Supports websocket subscriptions for block confirmations; like account tracking (multiple accounts allowed) and public endpoint
 * Caching of certain request actions to lower the RPC burden
-* Limits the number of response objects, like the number of pending transactions
+* Limits the number of response objects, like the number of receivable transactions
 * Slows down IPs that doing requests above limit (Overridden by purchased tokens)
 * IP filter for max allowed requests per time window (Overridden by purchased tokens)
 * Extra DDOS protection layer (defaults to max 100 requests/ 10sec, also for purchased tokens)
@@ -277,7 +277,7 @@ The proxy server is configured via the **settings.json** file found in the serve
 * **use_cache:** If caching certain commands set in <cached_commands> [true/false]
 * **use_http:** Listen on http [true/false]
 * **use_https:** Listen on https (a valid cert and key file is needed via <https_cert> and <https_key>) [true/false]
-* **use_output_limiter:** If limiting number of response objects, like pending transactions, to a certain max amount set in <limited_commands>. Only valid for RPC actions that have a "count" key [true/false] [true/false]
+* **use_output_limiter:** If limiting number of response objects, like receivable transactions, to a certain max amount set in <limited_commands>. Only valid for RPC actions that have a "count" key [true/false] [true/false]
 * **use_ip_blacklist:** If always blocking certain IPs set in <ip_blacklist> [true/false]
 * **use_tokens** If activating the token system for purchase via Nano [true/false] (more information further down)
 * **use_websocket** If activating the websocket system [true/false] (more information further down)
@@ -293,7 +293,7 @@ The proxy server is configured via the **settings.json** file found in the serve
 * **enable_prometheus_for_ips:** IP addresses to enable prometheus for. Typically ["127.0.0.1"] but can also be a combination of ipv4/ipv6 CIDR subnets like ["127.0.0.1", "::1/128", "172.16.0.0/12"] [comma separated list]
 * **allowed_commands:** A list of RPC actions to allow [list]
 * **cached_commands:** A list of commands [key] that will be cached for corresponding duration in seconds as [value]
-* **limited_commands:** A list of commands [key] to limit the output response for with max count as [value]. Also limits account arrays such as accounts_pending, which also limit the pending count per account as value*10.
+* **limited_commands:** A list of commands [key] to limit the output response for with max count as [value]. Also limits account arrays such as accounts_receivable, which also limit the receivable count per account as value*10.
 * **ip_blacklist:** A list of IPs to always block. Also supports CIDR like ["172.16.0.0/12"]. If calling from localhost you can test this with ["127.0.0.1"] (::ffff:127.0.0.1 for ipv6) [comma separated list]
 * **slow_down:** Contains the settings for slowing down requests. The rolling time slot is defined with <time_window> [ms]. When number of requests in that slot is exceeding <request_limit> it will start slowing down requests with increments of <delay_increment> [ms] with a maximum total delay defined in <max_delay> [ms]
 * **rate_limiter:** Contains the settings for the rate limiter. The rolling time slot is defined with <time_window> [ms]. When number of requests in that slot is exceeding <request_limit> it will block the IP until the time slot has passed. Then the IP can start requesting again. To permanently ban IPs they have to be manually added to <ip_blacklist> and activating <use_ip_blacklist>.
@@ -320,9 +320,9 @@ More info about the token system [in this section](#the-token-system)
 * **work_server** Source for calculating PoW. Can be a node (http://[::1]:7076) (with enable_control active) or a [work server](https://github.com/nanocurrency/nano-work-server) which can be run as "./nano-work-server --gpu 0:0 -l 127.0.0.1:7000" and then set work_server to http://127.0.0.1:7000. Also available pre-compiled [here](https://github.com/guilhermelawless/nano-dpow/tree/master/client). To use bpow or dpow, just point the server to itself such as http://127.0.0.1:9950/proxy (requires bpow/dpow to be configured and work_generate as allowed command)
 * **token_price**: Purchase price per token [Nano]
 * **payment_timeout**: Payment window before timeout and cancelled [seconds]
-* **pending_interval**: How often to check for deposit during the payment window (may be removed if websocket is implemented)
-* **pending_threshold**: Skip processing pending transactions below this raw amount
-* **pending_count**: The maximum number of pending transactions to process each time a new order comes in
+* **receivable_interval**: How often to check for deposit during the payment window (may be removed if websocket is implemented)
+* **receivable_threshold**: Skip processing receivable transactions below this raw amount
+* **receivable_count**: The maximum number of receivable transactions to process each time a new order comes in
 * **difficulty_multiplier**: The PoW multiplier from base difficulty
 * **payment_receive_account**: The account to send the incoming money
 * **min_token_amount**: The minimum amount of tokens to allow for purchase
@@ -511,7 +511,7 @@ See the js demo client for full example with error handling
 
 ---
 ### The Token System
-Only a certain amount of requests per time period is allowed and configured in the settings. Users who need more requests (however still affected by the "slow down rate limiter") can purchase tokens with Nano. The system requires the <use_tokens> to be active in **settings.json**. The system will also check orders older than 1h one time per hour and repair broken orders (by assigning tokens for any pending found), also removing unprocessed and empty orders older than one month.
+Only a certain amount of requests per time period is allowed and configured in the settings. Users who need more requests (however still affected by the "slow down rate limiter") can purchase tokens with Nano. The system requires the <use_tokens> to be active in **settings.json**. The system will also check orders older than 1h one time per hour and repair broken orders (by assigning tokens for any receivable found), also removing unprocessed and empty orders older than one month.
 
 ![Token System](https://github.com/Joohansson/NanoRPCProxy/raw/master/media/NanoRPCPRoxy_tokens.png)
 
@@ -617,7 +617,7 @@ Like with the RPC interface, NanoRPCProxy provides a websocket server with black
 The supported messages are shown below:
 
 **Subscribe to block confirmations**
-Just like the node you can subscribe to confirmed blocks on the network. However, one exception is you MUST specify a list of accounts. The maximum allowed number is defined in the settings parameter <websocket_max_accounts>. The account is tracked based on both "account" or "link_as_account" which means it can be used also to detect pending transactions (which would be subtype=send and the tracked account as "link_as_account").
+Just like the node you can subscribe to confirmed blocks on the network. However, one exception is you MUST specify a list of accounts. The maximum allowed number is defined in the settings parameter <websocket_max_accounts>. The account is tracked based on both "account" or "link_as_account" which means it can be used also to detect receivable transactions (which would be subtype=send and the tracked account as "link_as_account").
 
     {
         "action": "subscribe",

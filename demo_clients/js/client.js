@@ -6,7 +6,7 @@ const SAMPLE_COMMANDS = [
   '{"action":"account_history", "account":"nano_3cpz7oh9qr5b7obbcb5867omqf8esix4sdd5w6mh8kkknamjgbnwrimxsaaf", "count":"20"}',
   '{"action":"active_difficulty"}',
   '{"action":"block_info","json_block":"true","hash":"87434F8041869A01C8F6F263B87972D7BA443A72E0A97D7A3FD0CCC2358FD6F9"}',
-  '{"action":"pending","account":"nano_1111111111111111111111111111111111111111111111111117353trpda","count": "5"}',
+  '{"action":"receivable","account":"nano_1111111111111111111111111111111111111111111111111117353trpda","count": "5"}',
   '{"action":"representatives_online"}',
   '{"action":"price"}',
   '{"action":"tokens_buy","token_amount":10}',

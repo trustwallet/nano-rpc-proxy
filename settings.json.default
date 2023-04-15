@@ -35,7 +35,7 @@
     "account_representative",
     "account_weight",
     "accounts_frontiers",
-    "accounts_pending",
+    "accounts_receivable",
     "active_difficulty",
     "available_supply",
     "block_account",
@@ -49,13 +49,11 @@
     "delegators_count",
     "frontiers",
     "key_create",
-    "pending",
-    "pending_exists",
     "process",
-    "representatives",
-    "representatives_online",
     "receivable",
     "receivable_exists",
+    "representatives",
+    "representatives_online",
     "sign",
     "successors",
     "price",
@@ -76,10 +74,10 @@
     "account_history":        500,
     "accounts_frontiers":     500,
     "accounts_balances":      500,
-    "accounts_pending":       50,
+    "accounts_receivable":    50,
     "chain":                  500,
     "frontiers":              500,
-    "pending":                500
+    "receivable":             500
   },
   "ip_blacklist":           [
     "8.8.8.8"

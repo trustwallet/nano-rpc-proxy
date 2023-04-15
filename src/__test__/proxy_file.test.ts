@@ -34,7 +34,7 @@ const expectedSettingsWithFile = [
     '5 : account_representative\n' +
     '6 : account_weight\n' +
     '7 : accounts_frontiers\n' +
-    '8 : accounts_pending\n' +
+    '8 : accounts_receivable\n' +
     '9 : active_difficulty\n' +
     '10 : available_supply\n' +
     '11 : block_account\n' +
@@ -48,22 +48,20 @@ const expectedSettingsWithFile = [
     '19 : delegators_count\n' +
     '20 : frontiers\n' +
     '21 : key_create\n' +
-    '22 : pending\n' +
-    '23 : pending_exists\n' +
-    '24 : process\n' +
+    '22 : process\n' +
+    '23 : receivable\n' +
+    '24 : receivable_exists\n' +
     '25 : representatives\n' +
     '26 : representatives_online\n' +
-    '27 : receivable\n' +
-    '28 : receivable_exists\n' +
-    '29 : sign\n' +
-    '30 : successors\n' +
-    '31 : price\n' +
-    '32 : mnano_to_raw\n' +
-    '33 : mnano_from_raw\n' +
-    '34 : work_validate\n' +
-    '35 : validate_account_number\n' +
-    '36 : version\n' +
-    '37 : verified_accounts\n',
+    '27 : sign\n' +
+    '28 : successors\n' +
+    '29 : price\n' +
+    '30 : mnano_to_raw\n' +
+    '31 : mnano_from_raw\n' +
+    '32 : work_validate\n' +
+    '33 : validate_account_number\n' +
+    '34 : version\n' +
+    '35 : verified_accounts\n',
     'Cached commands:\n' +
     '\n' +
     'block_count : 30\n' +
@@ -75,10 +73,10 @@ const expectedSettingsWithFile = [
     'account_history : 500\n' +
     'accounts_frontiers : 500\n' +
     'accounts_balances : 500\n' +
-    'accounts_pending : 50\n' +
+    'accounts_receivable : 50\n' +
     'chain : 500\n' +
     'frontiers : 500\n' +
-    'pending : 500\n',
+    'receivable : 500\n',
     'Slow down settings:\n' +
     '\n' +
     'time_window : 600000\n' +

@@ -1,5 +1,5 @@
 # Build stage #
-FROM node:14 AS build
+FROM node:18 AS build
 
 WORKDIR /usr/src/app
 
@@ -15,7 +15,7 @@ COPY ./src ./src
 RUN npm run-script build
 
 # Deploy stage #
-FROM node:14
+FROM node:18
 
 WORKDIR /app
 
