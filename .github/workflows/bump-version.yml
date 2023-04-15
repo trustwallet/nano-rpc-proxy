@@ -19,20 +19,26 @@ jobs:
           # trust-ci is allowed to bypass the branch protection
           token: ${{ secrets.CI_GITHUB_TOKEN }}
 
-      - name: Bump version and push tag
+      - name: Calculate version
         id: tag-version
         uses: mathieudutour/github-tag-action@v6.1
         with:
           dry_run: true
           github_token: ${{ secrets.CI_GITHUB_TOKEN }}
 
+      # Configure Git
+      - name: Git configuration
+        run: |
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "GitHub Actions"
+
       - name: Bump npm version
-        run: npm version ${{ steps.tag-version.outputs.new_version }}
+        run: npm version ${{ steps.tag-version.outputs.new_tag }}
 
       - name: Commit updated npm package.json
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: '[skip ci] bump npm version to ${{ steps.tag-version.outputs.new_version }}'
+          commit_message: '[skip ci] bump npm version to ${{ steps.tag-version.outputs.new_tag }}'
           branch: main
           file_pattern: 'package*.json'
           commit_user_name: trust-ci
@@ -41,5 +47,5 @@ jobs:
       - name: Bump version and push tag
         uses: mathieudutour/github-tag-action@v6.1
         with:
-          custom_tag: ${{ steps.tag-version.outputs.new_version }}
+          custom_tag: ${{ steps.tag-version.outputs.new_tag }}
           github_token: ${{ secrets.CI_GITHUB_TOKEN }}
