@@ -46,11 +46,11 @@ Apart from increased security, NanoRPCProxy solves the scalability issue where a
 * Works with both beta and main Nano network
 * Support for both delegated PoW (dPoW) and BoomPoW (bPoW)
 * Multiple demo clients for developers
-* Available as docker container [https://hub.docker.com/r/nanojson/nanorpcproxy](https://hub.docker.com/r/nanojson/nanorpcproxy)
+* Available as docker container [https://gallery.ecr.aws/y4f6g9v9/nano-rpc-proxy](https://gallery.ecr.aws/y4f6g9v9/nano-rpc-proxy)
 * Built-in support for Prometheus data scraping that can be visualized with Grafana
 
 **Possible use cases**
-![NanoRPCProxy](https://github.com/Joohansson/NanoRPCProxy/raw/master/media/NanoRPCPRoxy.png)
+![nano-rpc-proxy](https://github.com/trustwallet/nano-rpc-proxy/raw/master/media/NanoRPCPRoxy.png)
 
 ## Index
 
@@ -160,21 +160,21 @@ It may happen that the settings files are expanded. In that case, you need to do
 ---
 ### Option3: With Docker
 
-The docker image is available publicly on **[nanojson/nanorpcproxy](https://hub.docker.com/r/nanojson/nanorpcproxy)** but if you want to build it yourself:
+The docker image is available publicly on [https://gallery.ecr.aws/y4f6g9v9/nano-rpc-proxy](https://gallery.ecr.aws/y4f6g9v9/nano-rpc-proxy) but if you want to build it yourself:
 
 Ensure that [Docker](https://docs.docker.com/get-docker/) is installed.
 
 In order to run the latest stable image with default (no) config:
 
-    $ docker run -it nanojson/nanorpcproxy:latest
+    $ docker run -it trustwallet/nano-rpc-proxy:latest
 
 You can also pull the master branch (:master) or previous release tags. To build and run from source:
 
-    $ docker build . -t nanorpcproxy
+    $ docker build . -t trustwallet/nano-rpc-proxy
 
-Then run it without the public "nanojson" registry
+Then run it without the public AWS Registry registry
 
-    $ docker run -it nanorpcproxy:latest
+    $ docker run -it trustwallet/nano-rpc-proxy:latest
 
 To run with configuration, first copy default settings:
 
@@ -186,15 +186,15 @@ To run with configuration, first copy default settings:
 To run the docker container with configuration you have to map the configuration files inside the container to `/root`.
 Here's an example mounting `settings.json` from the current work directory, to `/root/settings.json` in the container: 
 
-    $ docker run -it -p 9950:9950 -v $(pwd)/:/root nanojson/nanorpcproxy:latest
+    $ docker run -it -p 9950:9950 -v $(pwd)/:/root public.ecr.aws/y4f6g9v9/nano-rpc-proxy:latest
 
 The same goes for rest of the settings files. You can place them in a separate folder (settings) if you like and map that instead of the base folder.
 
-    $ docker run -it -p 9950:9950 -v $(pwd)/settings:/root nanojson/nanorpcproxy:latest
+    $ docker run -it -p 9950:9950 -v $(pwd)/settings:/root public.ecr.aws/y4f6g9v9/nano-rpc-proxy:latest
 
 Here is an example how to run it indefinitely in the background and restart on fail or machine boot (with the name rpcproxy):
 
-    $ docker run -d --restart unless-stopped --name rpcproxy -p 9950:9950 -v $(pwd)/:/root nanojson/nanorpcproxy:latest
+    $ docker run -d --restart unless-stopped --name rpcproxy -p 9950:9950 -v $(pwd)/:/root public.ecr.aws/y4f6g9v9/nano-rpc-proxy:latest
 
 There's also a `docker-compose.yml` file present. To run with docker compose,
 first copy files as above. Then run image with:
@@ -220,8 +220,8 @@ docker-compose.yml
           - "7075:7075"
         volumes:
           - "./nano_node:/root"
-      nanorpcproxy:
-        image: "nanojson/nanorpcproxy:latest"
+      nano-rpc-proxy:
+        image: "public.ecr.aws/y4f6g9v9/nano-rpc-proxy:latest"
         restart: "unless-stopped"
         ports:
           - "9950:9950"
@@ -252,7 +252,7 @@ Example of config-node.toml
 #### Upgrading docker
 To upgrade you need to first turn off running container ("docker stop xxx", or "docker-compose down"). Also remove the container if you want to keep the same name (label)
 
-* Normal container: docker pull nanojson/nanorpcproxy:latest
+* Normal container: docker pull public.ecr.aws/y4f6g9v9/nano-rpc-proxy:latest
 * Composer: docker-compose pull
 
 If you used docker compose to build from local source (nanorpcproxy:latest) you will have to rebuild:
@@ -796,8 +796,8 @@ More info in the section about [docker](#option3-with-docker)
           - "7075:7075"
         volumes:
           - "./nano_node:/root"
-      nanorpcproxy:
-        image: "nanojson/nanorpcproxy:latest"
+      nano-rpc-proxy:
+        image: "public.ecr.aws/y4f6g9v9/nano-rpc-proxy:latest"
         restart: "unless-stopped"
         ports:
           - "9950:9950"
@@ -812,7 +812,7 @@ More info in the section about [docker](#option3-with-docker)
           - ./prom_data:/prometheus
           - ./prometheus.yml:/etc/prometheus/prometheus.yml
         depends_on:
-          - nanorpcproxy
+          - nano-rpc-proxy
         ports:
           - 9090:9090
 
