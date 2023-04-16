@@ -494,7 +494,7 @@ async function processSend(order_db: OrderDB, privKey: string, previous: string 
 
   // retrive from RPC
   try {
-    let data: WorkGenerateResponse = await Tools.postData(command, settings.work_server, API_TIMEOUT)
+    let data: WorkGenerateResponse = await Tools.postData(command, settings.work_server, undefined, API_TIMEOUT)
     if (data.work) {
       let work = data.work
       // create the block with the work found
