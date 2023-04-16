@@ -23,6 +23,7 @@
     "express-ipfilter": "^1.2.0",
     "express-serve-static-core": "^0.1.1",
     "express-slow-down": "^1.4.0",
+    "fs": "^0.0.1-security",
     "helmet": "^4.1.1",
     "http": "^0.0.1-security",
     "https": "^1.0.0",
