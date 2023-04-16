@@ -1,6 +1,6 @@
 version: "3.8"
 services:
-  nanorpcproxy:
+  nano-rpc-proxy:
     build: .
     ports:
       - "9950:9950"

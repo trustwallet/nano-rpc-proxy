@@ -26,10 +26,11 @@ const sleep = (milliseconds: number) => {
 }
 
 let node_url = "" // will be set by main script
+let node_headers: Record<string, string> | undefined
 
 // Functions to be required from another file
 // Generates and provides a payment address while checking for receivable tx and collect them
-export async function requestTokenPayment(token_amount: number, token_key: string, order_db: OrderDB, url: string): Promise<TokenRPCError | TokenInfo> {
+export async function requestTokenPayment(token_amount: number, token_key: string, order_db: OrderDB, url: string, headers: Record<string, string> | undefined): Promise<TokenRPCError | TokenInfo> {
   // Block request if amount is not within interval
   if (token_amount < settings.min_token_amount) {
     return {error: "Token amount must be larger than " + settings.min_token_amount}
@@ -39,6 +40,7 @@ export async function requestTokenPayment(token_amount: number, token_key: strin
   }
 
   node_url = url
+  node_headers = headers
   let priv_key = ""
   let address = ""
   let nano_amount = token_amount*settings.token_price // the Nano to be received
@@ -145,8 +147,9 @@ export async function checkTokenPrice(): Promise<TokenPriceResponse> {
   return {token_price: settings.token_price}
 }
 
-export async function repairOrder(address: string, order_db: OrderDB, url: string): Promise<void> {
+export async function repairOrder(address: string, order_db: OrderDB, url: string, headers: Record<string, string> | undefined): Promise<void> {
   node_url = url
+  node_headers = headers
   checkReceivable(address, order_db, false)
 }
 
@@ -264,7 +267,7 @@ async function processAccount(privKey: string, order_db: OrderDB): Promise<Statu
 
     // retrive from RPC
     try {
-      let data: AccountInfoResponse = await Tools.postData(command, node_url, API_TIMEOUT)
+      let data: AccountInfoResponse = await Tools.postData(command, node_url, node_headers, API_TIMEOUT)
       let validResponse = false
       // if frontier is returned it means the account has been opened and we create a receive block
       if (data.frontier) {
@@ -325,7 +328,7 @@ async function createReceivableBlocks(order_db: OrderDB, privKey: string, addres
 
   // retrive from RPC
   try {
-    let data: ReceivableResponse = await Tools.postData(command, node_url, API_TIMEOUT)
+    let data: ReceivableResponse = await Tools.postData(command, node_url, node_headers, API_TIMEOUT)
     // if there are any receivable, process them
     if (data.blocks) {
       // sum all raw amounts and create receive blocks for all receivable
@@ -414,7 +417,8 @@ async function processReceivable(order_db: OrderDB, blocks: any, keys: any, keyC
 
     // retrive from RPC
     try {
-      let data: WorkGenerateResponse = await Tools.postData(command, settings.work_server, API_TIMEOUT)
+      // NOTE: post data to work_server doesn't support custom headers 
+      let data: WorkGenerateResponse = await Tools.postData(command, settings.work_server, undefined, API_TIMEOUT)
       if (data.work) {
         let work = data.work
         // create the block with the work found
@@ -431,7 +435,7 @@ async function processReceivable(order_db: OrderDB, blocks: any, keys: any, keyC
         subType = 'receive' // only the first block can be an open block, reset for next loop
 
         try {
-          let data: ProcessResponse = await Tools.postData(jsonBlock, node_url, API_TIMEOUT)
+          let data: ProcessResponse = await Tools.postData(jsonBlock, node_url, node_headers, API_TIMEOUT)
           if (data.hash) {
             logThis("Processed receivable: " + data.hash, log_levels.info)
 
@@ -490,7 +494,7 @@ async function processSend(order_db: OrderDB, privKey: string, previous: string 
 
   // retrive from RPC
   try {
-    let data: WorkGenerateResponse = await Tools.postData(command, settings.work_server, API_TIMEOUT)
+    let data: WorkGenerateResponse = await Tools.postData(command, settings.work_server, undefined, API_TIMEOUT)
     if (data.work) {
       let work = data.work
       // create the block with the work found
@@ -503,7 +507,7 @@ async function processSend(order_db: OrderDB, privKey: string, previous: string 
       // publish block for each iteration
       let jsonBlock = {action: "process",  json_block: "true",  subtype:"send", block: block.block}
       try {
-        let data: ProcessResponse = await Tools.postData(jsonBlock, node_url, API_TIMEOUT)
+        let data: ProcessResponse = await Tools.postData(jsonBlock, node_url, node_headers, API_TIMEOUT)
         if (data.hash) {
           logThis("Funds transferred at block: " + data.hash + " to " + settings.payment_receive_account, log_levels.info)
           // update the db with latest hash to be used if processing receivable for the same account
@@ -529,13 +533,13 @@ async function processSend(order_db: OrderDB, privKey: string, previous: string 
 }
 
 // Log function
-function logThis(str: string, level: LogLevel) {
+function logThis(message: any, level: LogLevel) {
   if (settings.log_level == log_levels.info || level == settings.log_level) {
     if (level == log_levels.info) {
-      console.info(str)
+      console.info(message)
     }
     else {
-      console.warn(str)
+      console.warn(message)
     }
   }
 }

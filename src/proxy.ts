@@ -159,7 +159,7 @@ async function checkOldOrders() {
   orders.forEach(async function(order) {
     // Reset status in case the order was interrupted and set a small nano_amount to allow small receivable to create tokens
     order_db.get('orders').find({priv_key: order.priv_key}).assign({order_waiting: false, processing: false, nano_amount: 0.000000001}).write()
-    await Tokens.repairOrder(order.address, order_db, settings.node_url)
+    await Tokens.repairOrder(order.address, order_db, settings.node_url, settings.node_headers)
 
     // Remove if order has been unprocessed with a timeout for 1 month
     if (order.tokens === 0 && order.order_time_left === 0 && order.hashes.length === 0 && order.timestamp < now - 3600*24*31) {
@@ -484,7 +484,7 @@ async function processTokensRequest(query: ProxyRPCRequest, req: Request, res: R
         token_key = query.token_key
       }
 
-      let payment_request = await Tokens.requestTokenPayment(token_amount, token_key, order_db, settings.node_url)
+      let payment_request = await Tokens.requestTokenPayment(token_amount, token_key, order_db, settings.node_url, settings.node_headers)
       return res.json(payment_request)
 
     // Verify order status
@@ -693,7 +693,7 @@ async function processRequest(query: ProxyRPCRequest, req: Request, res: Respons
         query.api_key = powSettings.bpow.key
 
         try {
-          let data: ProcessDataResponse = await Tools.postData(query, bpow_url, work_default_timeout*1000*2)
+          let data: ProcessDataResponse = await Tools.postData(query, bpow_url, undefined, work_default_timeout*1000*2)
           data.difficulty = query.difficulty
           data.multiplier = multiplierFromDifficulty(data.difficulty, work_threshold_default)
           if (tokens_left != null) {
@@ -728,7 +728,7 @@ async function processRequest(query: ProxyRPCRequest, req: Request, res: Respons
         query.api_key = powSettings.dpow.key
 
         try {
-          let data: ProcessDataResponse = await Tools.postData(query, dpow_url, work_default_timeout*1000*2)
+          let data: ProcessDataResponse = await Tools.postData(query, dpow_url, undefined, work_default_timeout*1000*2)
           data.difficulty = query.difficulty
           data.multiplier = multiplierFromDifficulty(data.difficulty, work_threshold_default)
           if (tokens_left != null) {
@@ -760,7 +760,7 @@ async function processRequest(query: ProxyRPCRequest, req: Request, res: Respons
         logThis("Requesting work using work server with diff: " + query.difficulty, log_levels.info)
 
         try {
-          let data: ProcessDataResponse = await Tools.postData(query, powSettings.work_server.url+':'+powSettings.work_server.port, work_default_timeout*1000*2)
+          let data: ProcessDataResponse = await Tools.postData(query, powSettings.work_server.url+':'+powSettings.work_server.port, undefined, work_default_timeout*1000*2)
           data.difficulty = query.difficulty
           data.multiplier = multiplierFromDifficulty(data.difficulty, work_threshold_default)
           if (tokens_left != null) {
@@ -830,7 +830,7 @@ async function processRequest(query: ProxyRPCRequest, req: Request, res: Respons
   // Send the request to the Nano node and return the response
   let endNodeTimer: MaybeTimedCall = promClient?.timeNodeRpc(query.action)
   try {
-    let data: ProcessDataResponse = await Tools.postData(query, settings.node_url, API_TIMEOUT)
+    let data: ProcessDataResponse = await Tools.postData(query, settings.node_url, settings.node_headers, API_TIMEOUT)
     // Save cache if applicable
     if (settings.use_cache) {
       const value: number | undefined = userSettings.cached_commands[query.action]
