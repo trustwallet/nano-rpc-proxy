@@ -2,11 +2,23 @@ version: "3.8"
 services:
   nano-rpc-proxy:
     build: .
+    environment:
+      - CONFIG_CREDS_SETTINGS=/etc/nano-rpc-proxy/creds.json
+      - CONFIG_POW_CREDS_SETTINGS=/etc/nano-rpc-proxy/pow_creds.json
+      - CONFIG_SETTINGS=/etc/nano-rpc-proxy/settings.json
+      - CONFIG_TOKEN_SETTINGS=/etc/nano-rpc-proxy/token_settings.json
+      - CONFIG_USER_SETTINGS=/etc/nano-rpc-proxy/user_settings.json
+      - CONFIG_REQUEST_STAT=/var/lib/nano-rpc-proxy/request-stat.json
+      - CONFIG_WEBSOCKET_PATH=/var/lib/nano-rpc-proxy/websocket.json
+      - CONFIG_DB_PATH=/var/lib/nano-rpc-proxy/db.json
     ports:
       - "9950:9950"
       - "9952:9952"
     volumes:
-      - ./settings.json:/usr/src/app/settings.json
-#     - ./creds.json:/usr/src/app/creds.json
-#     - ./user_settings.json:/usr/src/app/user_settings.json
-#     - ./token_settings.json:/usr/src/app/token_settings.json
+      - ./settings.json:/etc/nano-rpc-proxy/settings.json
+      - ./creds.json:/etc/nano-rpc-proxy/creds.json
+      - ./user_settings.json:/etc/nano-rpc-proxy/user_settings.json
+      - ./token_settings.json:/etc/nano-rpc-proxy/token_settings.json
+      - ./db.json:/var/lib/nano-rpc-proxy/db.json
+      - ./request-stat.json:/var/lib/nano-rpc-proxy/request-stat.json
+      - ./websocket.json:/var/lib/nano-rpc-proxy/websocket.json
