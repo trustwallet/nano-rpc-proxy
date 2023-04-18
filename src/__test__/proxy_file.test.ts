@@ -4,8 +4,7 @@ import {proxyLogSettings, readProxySettings} from "../proxy-settings";
 const expectedSettingsWithFile = [
     'PROXY SETTINGS:\n-----------',
     'Node url: http://[::1]:7076',
-    'Node headers:',
-    '\tContent-Type: application/json',
+    'Node headers:\n\nContent-Type : application/json\n',
     'Websocket url: ws://127.0.0.1:7078',
     'Http port: 9950',
     'Https port: 9951',
@@ -99,7 +98,7 @@ test('log proxy settings with default config from file', () => {
     let settings: string[] = []
     const readSettings = readProxySettings(getTestPath(settingsFilePath))
     proxyLogSettings((setting: string) => settings.push(setting), readSettings)
-    expect(settings.length).toBe(31);
+    expect(settings.length).toBe(30);
     expect(settings).toStrictEqual(expectedSettingsWithFile)
 })
 

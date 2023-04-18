@@ -104,6 +104,8 @@ export default interface ProxySettings {
     log_level: LogLevel;
     // IP addresses to enable prometheus for. Typically '127.0.0.1', or '::ffff:127.0.0.1' for IPv6
     enable_prometheus_for_ips: string[];
+    // enable v23 version compatibility, which automatically update renamed actions names. pending -> receivable, pending_exists -> receivable_exists, accounts_pending -> accounts_receivable
+    enable_v23_compatibility: boolean;
 }
 
 function logObjectEntries(logger: (...data: any[]) => void, title: string, object: any) {
@@ -122,10 +124,7 @@ export function proxyLogSettings(logger: (...data: any[]) => void, settings: Pro
     logger("PROXY SETTINGS:\n-----------")
     logger("Node url: " + settings.node_url)
     if (settings.node_headers) {
-        logger("Node headers:") 
-        for (const header in settings.node_headers) {
-            logger("\t" + header + ": " + settings.node_headers[header]);
-        }
+        logObjectEntries(logger, "Node headers:\n", settings.node_headers)
     }
     logger("Websocket url: " + settings.node_ws_url)
     logger("Http port: " + String(settings.http_port))
@@ -185,6 +184,9 @@ export function proxyLogSettings(logger: (...data: any[]) => void, settings: Pro
             logObjectEntries(logger, "Use cors. Whitelisted ORIGINs or IPs:\n", settings.cors_whitelist)
         }
     }
+    if (settings.enable_v23_compatibility) {
+        logger("Enable v23 compatibility")
+    }
     logger("Main log level: " + settings.log_level)
 }
 
@@ -228,6 +230,7 @@ export function readProxySettings(settingsPath: string): ProxySettings {
         cors_whitelist: [],
         log_level: log_levels.none,
         enable_prometheus_for_ips: [],
+        enable_v23_compatibility: false,
     }
     try {
         const settings: ProxySettings = JSON.parse(Fs.readFileSync(settingsPath, 'utf-8'))

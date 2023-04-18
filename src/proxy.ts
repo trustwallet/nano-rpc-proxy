@@ -573,6 +573,18 @@ async function processRequest(query: ProxyRPCRequest, req: Request, res: Respons
     return processTokensRequest(query, req, res);
   }
 
+  if(settings.enable_v23_compatibility && query.action) {
+    if (query.action.toString() == "pending") {
+      query.action = "receivable"
+    }
+    if (query.action.toString() == "pending_exists") {
+      query.action = "receivable_exists"
+    }
+    if (query.action.toString() == "accounts_pending") {
+      query.action = "accounts_receivable"
+    }
+  }
+
   // Block non-allowed RPC commands
   if (!query.action || userSettings.allowed_commands.indexOf(query.action) === -1) {
     logThis('RPC request is not allowed: ' + query.action, log_levels.info)
