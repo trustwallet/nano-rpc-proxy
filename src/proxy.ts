@@ -580,7 +580,7 @@ async function processRequest(query: ProxyRPCRequest, req: Request, res: Respons
   }
   
   // Block receivable on specific account
-  if (query.action === 'receivable' && query.account?.toLowerCase().replace('xrb_','nano_') === 'nano_1111111111111111111111111111111111111111111111111111hifc8npp') {
+  if (['receivable','pending'].indexOf(query.action) && query.account?.toLowerCase().replace('xrb_','nano_') === 'nano_1111111111111111111111111111111111111111111111111111hifc8npp') {
     return res.status(403).json({error: 'Account not allowed'})
   }
 
@@ -804,13 +804,13 @@ async function processRequest(query: ProxyRPCRequest, req: Request, res: Respons
     const value: number | undefined = userSettings.limited_commands[query.action]
     if (value !== undefined) {
       // Handle multi-account calls a bit different since it's an array of accounts
-      if (query.action === 'accounts_frontiers' || query.action === 'accounts_balances' || query.action === 'accounts_receivable') {
+      if (query.action === 'accounts_frontiers' || query.action === 'accounts_balances' || query.action === 'accounts_receivable' || query.action === 'accounts_pending') {
         if (query.accounts?.length > value) {
           query.accounts = query.accounts.slice(0, value)
           logThis("Query accounts was limited to " + value.toString(), log_levels.info)
         }
-        // also limit count for accounts_receivable
-        if (query.action === 'accounts_receivable') {
+        // also limit count for accounts_receivable (and its deprecated name)
+        if (query.action === 'accounts_receivable' || query.action === 'accounts_pending') {
           if (query.count > value * 10 || !(query.count)) {
             query.count = value * 10
             logThis("Response count was limited to " + (value * 10).toString(), log_levels.info)

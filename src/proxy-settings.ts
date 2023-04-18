@@ -122,10 +122,7 @@ export function proxyLogSettings(logger: (...data: any[]) => void, settings: Pro
     logger("PROXY SETTINGS:\n-----------")
     logger("Node url: " + settings.node_url)
     if (settings.node_headers) {
-        logger("Node headers:") 
-        for (const header in settings.node_headers) {
-            logger("\t" + header + ": " + settings.node_headers[header]);
-        }
+        logObjectEntries(logger, "Node headers:\n", settings.node_headers)
     }
     logger("Websocket url: " + settings.node_ws_url)
     logger("Http port: " + String(settings.http_port))

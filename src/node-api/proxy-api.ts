@@ -1,6 +1,6 @@
 import {TokenAPIActions} from "./token-api";
 
-export type RPCAction = TokenAPIActions | 'mnano_to_raw' | 'mnano_from_raw' | 'process' | 'work_generate' | 'price' | 'verified_accounts' | 'accounts_frontiers' | 'accounts_balances' | 'accounts_receivable' | 'receivable'
+export type RPCAction = TokenAPIActions | 'mnano_to_raw' | 'mnano_from_raw' | 'process' | 'work_generate' | 'price' | 'verified_accounts' | 'accounts_frontiers' | 'accounts_balances' | 'accounts_receivable' | 'accounts_pending' | 'receivable' | 'pending' | 'receivable_exists' | 'pending_exists'
 
 export interface ProxyRPCRequest {
     action: RPCAction
