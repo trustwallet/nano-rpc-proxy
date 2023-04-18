@@ -301,7 +301,6 @@ The proxy server is configured via the **settings.json** file found in the serve
 * **websocket_max_accounts** Maximum number of accounts per IP allowed for block confirmation subscription [number]
 * **cors_whitelist** Whitelist requester ORIGIN header or IP for example "https://mywallet.com", "http://localhost:8080" or "8.8.8.8" (requires use_cors) [comma separated list of hostnames]
 * **log_level:** It can be set to either "info" which will output all logs, "warning" which will only output warning messages or "none" which will only log the initial settings.
-* **enable_v23_compatibility** If activating V23 compatibility [true/false], the actions deprecated since V24 will be automatically renamed (`pending` -> `receivable`, `pending_exists` -> `receivable_exists`, `accounts_pending` -> `accounts_receivable`) before checking the **allowed_commands** (so no need to allow old methods, but only new).
 
 ---
 The following parameters can be set in **user_settings.json** to override the default ones for specific users defined in **creds.json**. Anything in this file will override even if there are less sub entries like only 1 allowed command or 2 limited commands.

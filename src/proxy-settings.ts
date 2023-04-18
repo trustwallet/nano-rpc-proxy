@@ -104,8 +104,6 @@ export default interface ProxySettings {
     log_level: LogLevel;
     // IP addresses to enable prometheus for. Typically '127.0.0.1', or '::ffff:127.0.0.1' for IPv6
     enable_prometheus_for_ips: string[];
-    // enable v23 version compatibility, which automatically update renamed actions names. pending -> receivable, pending_exists -> receivable_exists, accounts_pending -> accounts_receivable
-    enable_v23_compatibility: boolean;
 }
 
 function logObjectEntries(logger: (...data: any[]) => void, title: string, object: any) {
