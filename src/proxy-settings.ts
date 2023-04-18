@@ -182,9 +182,6 @@ export function proxyLogSettings(logger: (...data: any[]) => void, settings: Pro
             logObjectEntries(logger, "Use cors. Whitelisted ORIGINs or IPs:\n", settings.cors_whitelist)
         }
     }
-    if (settings.enable_v23_compatibility) {
-        logger("Enable v23 compatibility")
-    }
     logger("Main log level: " + settings.log_level)
 }
 
@@ -228,7 +225,6 @@ export function readProxySettings(settingsPath: string): ProxySettings {
         cors_whitelist: [],
         log_level: log_levels.none,
         enable_prometheus_for_ips: [],
-        enable_v23_compatibility: false,
     }
     try {
         const settings: ProxySettings = JSON.parse(Fs.readFileSync(settingsPath, 'utf-8'))

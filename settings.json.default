@@ -28,7 +28,6 @@
   "use_work_server":        false,
   "use_work_peers":         false,
   "enable_prometheus_for_ips": [],
-  "enable_v23_compatibility": false,
   "allowed_commands":       [
     "account_history",
     "account_info",
