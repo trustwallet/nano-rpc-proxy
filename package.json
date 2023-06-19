@@ -29,7 +29,7 @@
     "https": "^1.0.0",
     "ip-range-check": "^0.2.0",
     "lowdb": "^1.0.0",
-    "nanocurrency": "^2.4.0",
+    "nanocurrency": "^2.5.0",
     "nanocurrency-web": "^1.4.3",
     "node-cache": "^5.1.2",
     "node-fetch": "^2.6.7",
