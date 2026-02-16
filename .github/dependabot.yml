@@ -5,12 +5,101 @@
 
 version: 2
 updates:
+  # npm dependencies - root
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
-      
+      day: "wednesday"
+    open-pull-requests-limit: 3
+    labels:
+      - "npm"
+    groups:
+      development-dependencies:
+        dependency-type: "development"
+      production-dependencies:
+        dependency-type: "production"
+
+  # npm dependencies - reactjs demo client
+  - package-ecosystem: "npm"
+    directory: "/demo_clients/reactjs"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+    open-pull-requests-limit: 2
+    labels:
+      - "npm"
+      - "reactjs"
+    groups:
+      development-dependencies:
+        dependency-type: "development"
+      production-dependencies:
+        dependency-type: "production"
+
+  # npm dependencies - websocket_nodejs demo client
+  - package-ecosystem: "npm"
+    directory: "/demo_clients/websocket_nodejs"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+    open-pull-requests-limit: 2
+    labels:
+      - "npm"
+      - "websocket-nodejs"
+    groups:
+      development-dependencies:
+        dependency-type: "development"
+      production-dependencies:
+        dependency-type: "production"
+
+  # pip dependencies - flask demo client
   - package-ecosystem: "pip"
+    directory: "/demo_clients/flask"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+    open-pull-requests-limit: 2
+    labels:
+      - "python"
+      - "flask"
+
+  # pip dependencies - python demo client
+  - package-ecosystem: "pip"
+    directory: "/demo_clients/python"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+    open-pull-requests-limit: 2
+    labels:
+      - "python"
+      - "python-client"
+
+  # pip dependencies - websocket_python demo client
+  - package-ecosystem: "pip"
+    directory: "/demo_clients/websocket_python"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+    open-pull-requests-limit: 2
+    labels:
+      - "python"
+      - "websocket-python"
+
+  # Docker dependencies
+  - package-ecosystem: "docker"
     directory: "/"
     schedule:
       interval: "weekly"
+      day: "wednesday"
+    open-pull-requests-limit: 2
+    labels:
+      - "docker"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 3
+    labels:
+      - "github-actions"
